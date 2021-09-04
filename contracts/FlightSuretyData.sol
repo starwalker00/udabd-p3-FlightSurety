@@ -82,7 +82,7 @@ contract FlightSuretyData {
         authorizedCallers[callerToAuthorize] = true;
     }
 
-    function getAirlinesCount()
+    function getAirlineCount()
     public
     view
     returns(uint256)
@@ -138,10 +138,11 @@ contract FlightSuretyData {
     *
     */   
     function registerAirline(address airlineToRegister)
-    external
+    public
     {
-        uint airlineNumber = airlineCount.add(1);
+        uint256 airlineNumber = airlineCount.add(1);
         airlines[airlineToRegister].number = airlineNumber;
+        airlineCount = airlineCount.add(1);
     }
 
 

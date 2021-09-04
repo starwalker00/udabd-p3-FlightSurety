@@ -14,10 +14,35 @@ contract('Flight Surety Tests', async (accounts) => {
   /* Operations and Settings                                                              */
   /****************************************************************************************/
 
-  it(`registers owner as airline`, async function () {
+  it(`contract deployment registers owner as airline`, async function () {
 
     let isOwnerRegisteredAirline = await config.flightSuretyApp.isRegisteredAirline(config.owner);
     assert.equal(isOwnerRegisteredAirline, true, "Owner is not a registered Airline");
+
+  });
+
+  it(`gets airlineCount from data`, async function () {
+    let airlineCount = await config.flightSuretyData.getAirlineCount({ from: config.owner });
+    assert.equal(airlineCount, 1, "Cannot get airline count");
+  });
+  it(`gets airlineCount from app`, async function () {
+    let airlineCount = await config.flightSuretyApp.getAirlineCount({ from: config.owner });
+    assert.equal(airlineCount, 1, "Cannot get airline count");
+  });
+
+  it(`airline can add new airline when multiparty threshold not reached`, async function () {
+
+    await config.flightSuretyData.registerAirline(config.testAddresses[0], { from: config.owner });
+    let isRegisteredAirline = await config.flightSuretyApp.isRegisteredAirline(config.testAddresses[0], { from: config.owner });
+    assert.equal(isRegisteredAirline, true, "New Airline not registered");
+
+  });
+
+  it(`airline can add new airline when multiparty threshold not reached`, async function () {
+
+    await config.flightSuretyApp.registerAirline(config.testAddresses[0], { from: config.owner });
+    let isRegisteredAirline = await config.flightSuretyApp.isRegisteredAirline(config.testAddresses[0], { from: config.owner });
+    assert.equal(isRegisteredAirline, true, "New Airline not registered");
 
   });
 
