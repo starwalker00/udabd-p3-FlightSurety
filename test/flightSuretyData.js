@@ -10,8 +10,6 @@ contract('Flight Surety Data Tests', async (accounts) => {
   });
 
   it(`verifies contract owner`, async function () {
-    console.log("from: config.owner: "+ config.owner)
-    console.log("from: config.randomUser: "+ config.randomUser)
     let contractOwner = await config.flightSuretyData.contractOwner({ from: config.randomUser });
     assert.equal(contractOwner, config.owner, "contract owner does not match");
   });

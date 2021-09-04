@@ -26,7 +26,7 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
 
-    address private contractOwner;          // Account used to deploy contract
+    address public contractOwner;          // Account used to deploy contract
 
     struct Flight {
         bool isRegistered;
@@ -36,7 +36,10 @@ contract FlightSuretyApp {
     }
     mapping(bytes32 => Flight) private flights;
 
- 
+    // multi party variables
+    uint constant M = 2;    
+    mapping(address => address[]) public multiCalls;
+
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
     /********************************************************************************************/
@@ -107,6 +110,14 @@ contract FlightSuretyApp {
         dataContract = IFlightSuretyData(newDataContractAddress);
     }
 
+    function getMulticallsCountByAddress(address airlineToVote)
+    external
+    view
+    returns(uint256)
+    {
+        return multiCalls[airlineToVote].length;
+    }
+
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
@@ -137,9 +148,20 @@ contract FlightSuretyApp {
             // register Airline
             dataContract.registerAirline(airlineToRegister);
         }
-        else{
-            require(false, "consensus");
-            //dataContract.registerAirline(airlineToRegister);
+        else{ // multi party consensus needed
+            bool isDuplicate = false;
+            for(uint c=0; c<multiCalls[airlineToRegister].length; c++) {
+                if (multiCalls[airlineToRegister][c] == msg.sender) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+            require(!isDuplicate, "Caller has already voted in this airline.");
+            multiCalls[airlineToRegister].push(msg.sender);
+            if (multiCalls[airlineToRegister].length >= M) {
+                dataContract.registerAirline(airlineToRegister);
+                multiCalls[airlineToRegister] = new address[](0);      
+            }
         }
     }
 
