@@ -9,8 +9,8 @@ contract FlightSuretyData {
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
 
-    address private contractOwner;                                      // Account used to deploy contract
-    bool private operational = true;                                    // Blocks all state changes throughout the contract if false
+    address public contractOwner;                                      // Account used to deploy contract
+    bool public operational = true;                                    // Blocks all state changes throughout the contract if false
     
     // Airlines
     struct Airline {
@@ -37,7 +37,7 @@ contract FlightSuretyData {
         contractOwner = msg.sender;
         airlineCount = 0;
 
-        // register contract owner as airline
+        // register owner as airline
         airlineCount = airlineCount.add(1);
         airlines[contractOwner].number = airlineCount;
     }
