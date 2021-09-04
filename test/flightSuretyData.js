@@ -41,4 +41,18 @@ contract('Flight Surety Data Tests', async (accounts) => {
       assert.equal(airlineCount, 2, "getAirlineCount");
     });
   });
+  describe('# setAirlineHasPaidRegistrationFee()', function() {
+
+    it(`should return false`, async function () {
+      let airlineHasPaidRegistrationFee = await config.flightSuretyData.airlineHasPaidRegistrationFee(config.airline2, { from: config.randomUser });
+      assert.equal(airlineHasPaidRegistrationFee, false, "");
+    });
+
+    it(`should return true`, async function () {
+      await config.flightSuretyData.setAirlineHasPaidRegistrationFee(config.airline2, { from: config.airline2 });
+      let airlineHasPaidRegistrationFee = await config.flightSuretyData.airlineHasPaidRegistrationFee(config.airline2, { from: config.randomUser });
+      assert.equal(airlineHasPaidRegistrationFee, true, "");
+    });
+
+  });
 });

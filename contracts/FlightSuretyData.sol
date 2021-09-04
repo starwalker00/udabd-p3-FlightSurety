@@ -15,6 +15,7 @@ contract FlightSuretyData {
     // Airlines
     struct Airline {
         uint256 number;
+        bool hasPaidRegistrationFee;
     }
     mapping(address => Airline) public airlines;
     uint256 airlineCount;
@@ -99,6 +100,14 @@ contract FlightSuretyData {
         return airlines[potentialAirlineAddress].number > 0;
     }
 
+    function airlineHasPaidRegistrationFee(address airlineAddress)
+    public
+    view
+    returns(bool)
+    {
+        return airlines[airlineAddress].hasPaidRegistrationFee;
+    }
+
     /**
     * @dev Get operating status of contract
     *
@@ -145,6 +154,11 @@ contract FlightSuretyData {
         airlineCount = airlineCount.add(1);
     }
 
+    function setAirlineHasPaidRegistrationFee(address airlinePayingRegistrationFee) 
+    public
+    {
+        airlines[airlinePayingRegistrationFee].hasPaidRegistrationFee = true;
+    }
 
    /**
     * @dev Buy insurance for a flight

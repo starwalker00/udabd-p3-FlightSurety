@@ -68,4 +68,25 @@ contract('Flight Surety App Tests', async (accounts) => {
     });
 
   });
+
+  describe('#payRegistrationFee()', function() {
+
+    it(`should pay registration fee properly`, async function () {
+      let balanceDataContractBefore = web3.utils.toBN(await web3.eth.getBalance(config.flightSuretyData.address));
+      let balanceAirlineBefore = web3.utils.toBN(await web3.eth.getBalance(config.airline2));
+      //pay
+      await config.flightSuretyApp.payRegistrationFee({ from: config.airline2, value: config.registrationFee });
+      let balanceDataContractAfter = web3.utils.toBN(await web3.eth.getBalance(config.flightSuretyData.address));
+      let balanceAirlineAfter = web3.utils.toBN(await web3.eth.getBalance(config.airline2));
+      console.log("balanceDataContractBefore: "+balanceDataContractBefore)
+      console.log("balanceDataContractAfter: "+balanceDataContractAfter)
+      console.log("balanceAirlineBefore: "+balanceAirlineBefore)
+      console.log("balanceAirlineAfter: "+balanceAirlineAfter)
+      let contractCorrectlyPaid = config.registrationFee.toString() === web3.utils.toWei(balanceDataContractAfter, 'ether').toString();
+      console.log("web3.utils.toWei(config.registrationFee, 'ether').toString(): "+web3.utils.toWei(config.registrationFee, 'ether').toString())
+      console.log("balanceDataContractAfter.toString(): "+web3.utils.toWei(balanceDataContractAfter, 'ether').toString())
+      assert.equal(contractCorrectlyPaid, true, "");
+    });
+
+  });
 });

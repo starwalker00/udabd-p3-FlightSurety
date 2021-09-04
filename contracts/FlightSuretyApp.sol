@@ -37,8 +37,9 @@ contract FlightSuretyApp {
     mapping(bytes32 => Flight) private flights;
 
     // multi party variables
-    uint constant M = 2;    
     mapping(address => address[]) public multiCalls;
+
+    uint256 public registrationFee = 3;
 
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -65,6 +66,23 @@ contract FlightSuretyApp {
     modifier requireContractOwner()
     {
         require(msg.sender == contractOwner, "Caller is not contract owner");
+        _;
+    }
+
+    // modifier for registrationFee
+    modifier hasPaidEnough(uint _price) { 
+        require(msg.value >= _price);
+        _;
+    }
+
+    modifier checkValue(uint _price) {
+        _;
+        uint amountToReturn = msg.value - _price;
+        msg.sender.transfer(amountToReturn);
+    }
+
+    modifier isAirline(address _address) { 
+        require(isRegisteredAirline(_address));
         _;
     }
 
@@ -167,6 +185,18 @@ contract FlightSuretyApp {
                 multiCalls[airlineToRegister] = new address[](0);      
             }
         }
+    }
+
+    function payRegistrationFee
+    ()
+    isAirline(msg.sender)
+    hasPaidEnough(registrationFee)
+    checkValue(registrationFee)
+    public
+    payable
+    {
+        address(dataContract).transfer(registrationFee);
+        dataContract.setAirlineHasPaidRegistrationFee(msg.sender);
     }
 
     function getAirlineCount()
@@ -408,4 +438,5 @@ contract IFlightSuretyData {
     function getAirlineCount() public view returns(uint256);
     function isRegisteredAirline(address potentialAirlineAddress) public view returns(bool);
     function registerAirline(address airlineToRegister) public;
+    function setAirlineHasPaidRegistrationFee(address airlinePayingRegistrationFee) public;
 }

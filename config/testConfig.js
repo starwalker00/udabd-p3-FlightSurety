@@ -32,6 +32,7 @@ var Config = async function(accounts) {
     let flightSuretyData = await FlightSuretyData.deployed({ from: owner });
     let flightSuretyApp = await FlightSuretyApp.deployed(flightSuretyData.address, { from: owner });
 
+    let registrationFee = web3.utils.toWei(web3.utils.toBN('3'), 'ether');
     
     return {
         owner: owner,
@@ -46,6 +47,7 @@ var Config = async function(accounts) {
         flightSuretyData: flightSuretyData,
         flightSuretyApp: flightSuretyApp,
         randomUser: randomUser,
+        registrationFee: registrationFee
     }
 }
 
