@@ -11,6 +11,8 @@ import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 /************************************************** */
 contract FlightSuretyApp {
     using SafeMath for uint256; // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
+    IFlightSuretyData dataContract;
+    uint8 private constant MINIMUM_AIRLINES_COUNT_FOR_CONSENSUS = 4;
 
     /********************************************************************************************/
     /*                                       DATA VARIABLES                                     */
@@ -71,12 +73,11 @@ contract FlightSuretyApp {
     * @dev Contract constructor
     *
     */
-    constructor
-                                (
-                                ) 
-                                public 
+    constructor(address dataContractAddress) 
+    public
     {
         contractOwner = msg.sender;
+        dataContract = IFlightSuretyData(dataContractAddress);
     }
 
     /********************************************************************************************/
@@ -90,23 +91,57 @@ contract FlightSuretyApp {
     {
         return true;  // Modify to call data contract's status
     }
+        
+    function getDataContractAdress()
+    external
+    view
+    returns(address)
+    {
+        return address(dataContract);
+    }
+
+    function setDataContractAdress(address newDataContractAddress)
+    external
+    requireContractOwner()
+    {
+        dataContract = IFlightSuretyData(newDataContractAddress);
+    }
 
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
-
+    function isRegisteredAirline(address potentialAirlineAddress)
+    public
+    view
+    returns(bool)
+    {
+        return dataContract.isRegisteredAirline(potentialAirlineAddress);
+    }
   
    /**
     * @dev Add an airline to the registration queue
     *
     */   
-    function registerAirline
-                            (   
-                            )
-                            external
-                            pure
-                            returns(bool success, uint256 votes)
+    function registerAirline(address airlineToRegister)
+    external
+    returns(bool success, uint256 votes)
     {
+        // check if number of airline sufficient
+            // n -> add airline only if sender is another registered airline
+            // y -> add airline to queue, waiting for multisig
+        uint256 airlineCount = dataContract.getAirlineCount();
+        if(airlineCount < MINIMUM_AIRLINES_COUNT_FOR_CONSENSUS)
+        {
+            // check msg.sender is a registered Airline
+            bool isRegistered = dataContract.isRegisteredAirline(msg.sender);
+            require(isRegistered, "Unregistered Airline cannot register Airline while too few airlines registered");
+            // register Airline
+            dataContract.registerAirline(airlineToRegister);
+        }
+        else{
+            require(false, "consensus");
+            //dataContract.registerAirline(airlineToRegister);
+        }
         return (success, 0);
     }
 
@@ -335,3 +370,9 @@ contract FlightSuretyApp {
 // endregion
 
 }   
+
+contract IFlightSuretyData {
+    function getAirlineCount() public view returns(uint256);
+    function isRegisteredAirline(address potentialAirlineAddress) public view returns(bool);
+    function registerAirline(address airlineToRegister) external view returns(uint256);
+}

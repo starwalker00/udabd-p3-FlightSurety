@@ -1,4 +1,3 @@
-
 var FlightSuretyApp = artifacts.require("FlightSuretyApp");
 var FlightSuretyData = artifacts.require("FlightSuretyData");
 var BigNumber = require('bignumber.js');
@@ -23,8 +22,8 @@ var Config = async function(accounts) {
     let owner = accounts[0];
     let firstAirline = accounts[1];
 
-    let flightSuretyData = await FlightSuretyData.new();
-    let flightSuretyApp = await FlightSuretyApp.new();
+    let flightSuretyData = await FlightSuretyData.deployed({ from: owner });
+    let flightSuretyApp = await FlightSuretyApp.deployed(flightSuretyData.address, { from: owner });
 
     
     return {

@@ -11,6 +11,16 @@ contract FlightSuretyData {
 
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
+    
+    // Airlines
+    struct Airline {
+        uint256 number;
+    }
+    mapping(address => Airline) public airlines;
+    uint256 airlineCount;
+
+    // Authorized callers
+    mapping (address => bool) public authorizedCallers;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -21,12 +31,15 @@ contract FlightSuretyData {
     * @dev Constructor
     *      The deploying account becomes contractOwner
     */
-    constructor
-                                (
-                                ) 
-                                public 
+    constructor()
+    public 
     {
         contractOwner = msg.sender;
+        airlineCount = 0;
+
+        // register contract owner as airline
+        airlineCount = airlineCount.add(1);
+        airlines[contractOwner].number = airlineCount;
     }
 
     /********************************************************************************************/
@@ -59,6 +72,32 @@ contract FlightSuretyData {
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
+
+    function addAuthorizedCaller(address callerToAuthorize)
+    public
+    view
+    requireContractOwner()
+    {
+        //return airlines.length;
+        authorizedCallers[callerToAuthorize] = true;
+    }
+
+    function getAirlinesCount()
+    public
+    view
+    returns(uint256)
+    {
+        //return airlines.length;
+        return airlineCount;
+    }
+
+    function isRegisteredAirline(address potentialAirlineAddress)
+    public
+    view
+    returns(bool)
+    {
+        return airlines[potentialAirlineAddress].number > 0;
+    }
 
     /**
     * @dev Get operating status of contract
@@ -98,12 +137,11 @@ contract FlightSuretyData {
     *      Can only be called from FlightSuretyApp contract
     *
     */   
-    function registerAirline
-                            (   
-                            )
-                            external
-                            pure
+    function registerAirline(address airlineToRegister)
+    external
     {
+        uint airlineNumber = airlineCount.add(1);
+        airlines[airlineToRegister].number = airlineNumber;
     }
 
 
