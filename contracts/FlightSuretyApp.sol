@@ -12,8 +12,8 @@ import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 contract FlightSuretyApp {
     using SafeMath for uint256; // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
     IFlightSuretyData dataContract;
-    uint256 private constant MINIMUM_AIRLINES_COUNT_FOR_CONSENSUS = 4;
-
+    uint256 private constant MINIMUM_AIRLINES_COUNT_FOR_CONSENSUS_MECHANISM = 4;
+    
     /********************************************************************************************/
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
@@ -111,7 +111,7 @@ contract FlightSuretyApp {
     }
 
     function getMulticallsCountByAddress(address airlineToVote)
-    external
+    public
     view
     returns(uint256)
     {
@@ -140,7 +140,7 @@ contract FlightSuretyApp {
             // n -> add airline only if sender is another registered airline
             // y -> add airline to queue, waiting for multisig
         uint256 airlineCount = dataContract.getAirlineCount();
-        if(airlineCount < MINIMUM_AIRLINES_COUNT_FOR_CONSENSUS)
+        if(airlineCount < MINIMUM_AIRLINES_COUNT_FOR_CONSENSUS_MECHANISM)
         {
             // check msg.sender is a registered Airline
             bool isRegistered = isRegisteredAirline(msg.sender);
@@ -158,7 +158,11 @@ contract FlightSuretyApp {
             }
             require(!isDuplicate, "Caller has already voted in this airline.");
             multiCalls[airlineToRegister].push(msg.sender);
-            if (multiCalls[airlineToRegister].length >= M) {
+            // check multiparty consensus reached
+            uint256 currentAirlineCount = dataContract.getAirlineCount();
+            uint256 multicallsCount = getMulticallsCountByAddress(airlineToRegister);
+
+            if ( multicallsCount.mul(2) >= currentAirlineCount ) { // need at least 50% of airlines to have voted in
                 dataContract.registerAirline(airlineToRegister);
                 multiCalls[airlineToRegister] = new address[](0);      
             }

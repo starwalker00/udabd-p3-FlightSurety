@@ -57,5 +57,15 @@ contract('Flight Surety App Tests', async (accounts) => {
       assert.equal(isRegisteredAirline5, true, "Airline5 not registered");
     });
 
+    it(`should register sixth airline after 3 airlines voted it in`, async function () {
+      await config.flightSuretyApp.registerAirline(config.airline6, { from: config.airline2 });
+      await config.flightSuretyApp.registerAirline(config.airline6, { from: config.airline3 });
+      let isRegisteredAirline6before = await config.flightSuretyApp.isRegisteredAirline(config.airline6, { from: config.randomUser });
+      await config.flightSuretyApp.registerAirline(config.airline6, { from: config.airline4 });
+      let isRegisteredAirline6after = await config.flightSuretyApp.isRegisteredAirline(config.airline6, { from: config.randomUser });
+      assert.equal(isRegisteredAirline6before, false, "Airline6 registered");
+      assert.equal(isRegisteredAirline6after, true, "Airline6 not registered");
+    });
+
   });
 });
