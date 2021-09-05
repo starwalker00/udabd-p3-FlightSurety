@@ -97,7 +97,7 @@ contract FlightSuretyData {
     view
     returns(bool)
     {
-        return airlines[potentialAirlineAddress].number > 0;
+        return airlines[potentialAirlineAddress].number != 0;
     }
 
     function airlineHasPaidRegistrationFee(address airlineAddress)

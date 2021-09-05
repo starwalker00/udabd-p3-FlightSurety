@@ -51,8 +51,6 @@ contract('Flight Surety App Tests', async (accounts) => {
 
     it(`should register fifth airline after consensus`, async function () {
       await config.flightSuretyApp.registerAirline(config.airline5, { from: config.airline2 });
-      await config.flightSuretyApp.registerAirline(config.airline5, { from: config.airline3 });
-      await config.flightSuretyApp.registerAirline(config.airline5, { from: config.airline4 });
       let isRegisteredAirline5 = await config.flightSuretyApp.isRegisteredAirline(config.airline5, { from: config.randomUser });
       assert.equal(isRegisteredAirline5, true, "Airline5 not registered");
     });

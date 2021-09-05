@@ -82,10 +82,15 @@ contract FlightSuretyApp {
     }
 
     modifier isAirline(address _address) { 
-        require(isRegisteredAirline(_address));
+        require(isRegisteredAirline(_address), "should be an airline");
         _;
     }
 
+    modifier isNotAirline(address _address) { 
+        require(!isRegisteredAirline(_address), "should not be an airline");
+        _;
+    }
+    
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -152,6 +157,8 @@ contract FlightSuretyApp {
     *
     */   
     function registerAirline(address airlineToRegister)
+    isAirline(msg.sender)
+    isNotAirline(airlineToRegister)
     public
     {
         // check if number of airline sufficient
@@ -177,12 +184,10 @@ contract FlightSuretyApp {
             require(!isDuplicate, "Caller has already voted in this airline.");
             multiCalls[airlineToRegister].push(msg.sender);
             // check multiparty consensus reached
-            uint256 currentAirlineCount = dataContract.getAirlineCount();
             uint256 multicallsCount = getMulticallsCountByAddress(airlineToRegister);
-
-            if ( multicallsCount.mul(2) >= currentAirlineCount ) { // need at least 50% of airlines to have voted in
+            if ( multicallsCount.mul(2) >= airlineCount ) { // need at least 50% of airlines to have voted in
                 dataContract.registerAirline(airlineToRegister);
-                multiCalls[airlineToRegister] = new address[](0);      
+                multiCalls[airlineToRegister] = new address[](0);
             }
         }
     }
