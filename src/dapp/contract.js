@@ -40,6 +40,13 @@ export default class Contract {
             .call({ from: self.owner}, callback);
     }
 
+    airlineCount(callback) {
+        let self = this;
+        self.flightSuretyApp.methods
+             .getAirlineCount()
+             .call({ from: self.owner}, callback);
+     }
+
     fetchFlightStatus(flight, callback) {
         let self = this;
         let payload = {
@@ -50,6 +57,31 @@ export default class Contract {
         self.flightSuretyApp.methods
             .fetchFlightStatus(payload.airline, payload.flight, payload.timestamp)
             .send({ from: self.owner}, (error, result) => {
+                callback(error, payload);
+            });
+    }
+
+    isRegisteredAirline(airlineAddress, callback) {
+        let self = this;
+        let payload = {
+            airlineAddress: airlineAddress,
+        } 
+        console.log("airlineAddress:"+payload.airlineAddress)
+        self.flightSuretyApp.methods
+            .isRegisteredAirline(payload.airlineAddress)
+            .call({ from: self.owner}, callback);
+    }
+
+    registerAirline(airlineAddress,airlineAddressCaller, callback) {
+        let self = this;
+        let payload = {
+            airlineAddress: airlineAddress,
+        } 
+        console.log("airlineAddress:"+payload.airlineAddress)
+        console.log("sender: "+airlineAddressCaller)
+        self.flightSuretyApp.methods
+            .registerAirline(payload.airlineAddress)
+            .send({ from: airlineAddressCaller }, (error, result) => {
                 callback(error, payload);
             });
     }
